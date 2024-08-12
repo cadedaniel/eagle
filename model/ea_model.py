@@ -226,7 +226,7 @@ class EaModel(nn.Module):
                 tree_buffers["tree_indices"],
                 tree_buffers["retrieve_indices"],
                 sample_token,
-                logits_processor
+                logits_processor, # unused
             )
             logits, hidden_state_new, outputs = tree_decoding(
                 self,
@@ -236,17 +236,19 @@ class EaModel(nn.Module):
                 input_ids,
                 tree_buffers["retrieve_indices_head"],
             )
+            # logits processor called once per k?
             best_candidate, accept_length, sample_p = evaluate_posterior(
                 logits, candidates, logits_processor, cart_candidates_prob, tree_logits[2], tree_buffers["p_indices"],
                 tree_candidates, tree_buffers["b_indices"]
             )
+            print(f'{accept_length=}')
             input_ids, tree_logits, new_token, hidden_state, sample_token = update_inference_inputs(
                 input_ids,
                 candidates,
                 best_candidate,
                 accept_length,
                 tree_buffers["retrieve_indices"],
-                logits_processor,
+                logits_processor, # called once per len(tree indices)
                 logits,
                 tree_logits,
                 new_token,
